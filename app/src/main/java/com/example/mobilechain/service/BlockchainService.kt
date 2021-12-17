@@ -2,7 +2,9 @@ package com.example.mobilechain.service
 
 import com.example.mobilechain.domain.Block
 import com.example.mobilechain.domain.Blockchain
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
+import java.lang.Exception
 
 fun getBlockSetFromBlockchain(blockchain: Blockchain): HashSet<Block> {
     val blockSet = HashSet<Block>()
@@ -46,18 +48,39 @@ fun addRemoteBlockchain(remote: Blockchain, local: Blockchain): Boolean {
 }
 
 fun mergeBlockchain(localServerSet: HashSet<String>, localBlockchain: Blockchain): Boolean {
-    val restTemplate = RestTemplate()
+    val factory = SimpleClientHttpRequestFactory()
+    factory.setConnectTimeout(100)
+    factory.setReadTimeout(25000)
+    val restTemplate = RestTemplate(factory)
+    val errorSet = HashSet<String>()
     for (server in localServerSet) {
-        val remoteBlockchain = restTemplate.getForObject("http://$server/blockchain", Blockchain::class.java)
+        var remoteBlockchain: Blockchain?
+        try {
+            remoteBlockchain = restTemplate.getForObject("http://$server/blockchain", Blockchain::class.java)
+        } catch (e: Exception) {
+            println("Connection timeout for $server")
+            errorSet.add(server)
+            continue
+        }
         if (remoteBlockchain == null) continue
         if (!validChain(remoteBlockchain)) continue
         if (!isSameNonNullBlockOfTwoBlockchain(remoteBlockchain, localBlockchain)) continue
         addOneBlockchainToAnother(from = remoteBlockchain, to = localBlockchain)
     }
 
+    localServerSet.removeAll(errorSet)
+    errorSet.clear()
+
     localServerSet.forEach { server ->
-        restTemplate.postForObject("http://$server/add-blockchain", localBlockchain, Boolean::class.java)
+        try {
+            restTemplate.postForObject("http://$server/add-blockchain", localBlockchain, Boolean::class.java)
+        } catch (e: Exception) {
+            println("Connection timeout for $server")
+            errorSet.add(server)
+        }
     }
+
+    localServerSet.removeAll(errorSet)
 
     return true
 }
