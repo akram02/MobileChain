@@ -6,54 +6,120 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
-        android:id="@+id/clear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear"
+        android:id="@+id/validate"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/all"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/clearBlockchain"
+        android:text="Validate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/clearBlockchain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear Chain"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/validate"
+        app:layout_constraintEnd_toStartOf="@id/mergeData"
         tools:layout_editor_absoluteY="4dp" />
 
     <Button
-        android:id="@+id/all"
+        android:id="@+id/mergeData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="All"
+        android:text="Merge Data"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/clear"
-        app:layout_constraintEnd_toStartOf="@+id/add"
-        tools:layout_editor_absoluteY="4dp" />
-
-    <Button
-        android:id="@+id/add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/all"
-        app:layout_constraintEnd_toStartOf="@+id/merge"
-        tools:layout_editor_absoluteY="4dp" />
-
-    <Button
-        android:id="@+id/merge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Merge"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/add"
+        app:layout_constraintStart_toEndOf="@id/clearBlockchain"
         app:layout_constraintEnd_toEndOf="parent"
         tools:layout_editor_absoluteY="4dp" />
+
+
+
+
+
+
+
+
+    <Button
+        android:id="@+id/allData"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/validate"
+        app:layout_constraintEnd_toStartOf="@id/addData"
+        android:text="All Data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/addData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Data"
+        app:layout_constraintTop_toBottomOf="@id/clearBlockchain"
+        app:layout_constraintStart_toEndOf="@id/allData"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="4dp" />
+
+
+
+
+
+
+
+
+    <Button
+        android:id="@+id/cleanServer"
+        android:text="Clean Server"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/allData"
+        app:layout_constraintEnd_toStartOf="@id/addServer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/addServer"
+        android:text="Add Server"
+        app:layout_constraintStart_toEndOf="@id/cleanServer"
+        app:layout_constraintTop_toBottomOf="@id/allData"
+        app:layout_constraintEnd_toStartOf="@id/allServer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/allServer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="All Server"
+        app:layout_constraintStart_toEndOf="@id/addServer"
+        app:layout_constraintTop_toBottomOf="@id/allData"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="4dp" />
+
+    <Button
+        android:id="@+id/mergeServer"
+        android:text="Merge Server"
+        app:layout_constraintTop_toBottomOf="@id/allServer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/editText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mergeServer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <ScrollView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

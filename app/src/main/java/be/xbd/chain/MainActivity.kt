@@ -1,7 +1,9 @@
 package be.xbd.chain
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import be.xbd.chain.databinding.ActivityMainBinding
 import be.xbd.chain.domain.Blockchain
 import be.xbd.chain.service.*
@@ -16,6 +18,8 @@ import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.HashSet
 
 class MainActivity : AppCompatActivity() {
     init {
@@ -36,14 +40,129 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        server()
+        clickHandler()
+    }
+
+    private fun clickHandler() {
+        with(binding) {
+
+            // BlockchainController
+
+            //get("/validate")
+            validate.setOnClickListener {
+                val result = validChain(BLOCKCHAIN)
+                if (result) textView.text = "Data is valid"
+                else textView.text = "Error!! Invalid data"
+            }
+
+            //get("/clean-blockchain")
+            clearBlockchain.setOnClickListener {
+                cleanData()
+            }
+
+            //get("/merge-blockchain")
+            mergeData.setOnClickListener {
+                mergeData.setTextColor(Color.RED)
+                mergeData.text = "Merging"
+                CoroutineScope(Dispatchers.IO).launch {
+                    val result = mergeBlockchain(SERVER_SET, BLOCKCHAIN)
+                    runOnUiThread {
+                        mergeData.text = "Merge Completed"
+                    }
+                }
+            }
+
+
+            // BlockController
+
+            //get("/all-data")
+            allData.setOnClickListener {
+                val result = getBlockSetFromBlockchain(BLOCKCHAIN)
+                var str = ""
+                result.forEach {
+                    str += it.data
+                    str += " " + Date(it.timestamp.toLong())
+                }
+                textView.text = str
+            }
+
+            //get("/add-data")
+            addData.setOnClickListener {
+                fresh()
+                if (addData.text=="ADD") {
+                    addData.text = "Submit"
+                    addData.setTextColor(Color.RED)
+                    editText.visibility = View.VISIBLE
+                }
+                else {
+                    addDataToBlockchain(BLOCKCHAIN, editText.text.toString())
+                }
+                fresh()
+            }
+
+            // ServerController
+
+            //get("/clean-server")
+            cleanServer.setOnClickListener {
+                cleanServerSet(SERVER_SET, PORT)
+                textView.text = ""
+            }
+
+            //get("/add-server")
+            addServer.setOnClickListener {
+                fresh()
+                if (addServer.text=="ADD SERVER") {
+                    addServer.text = "Submit"
+                    addServer.setTextColor(Color.RED)
+                    editText.visibility = View.VISIBLE
+                }
+                else {
+                    SERVER_SET.add(editText.text.toString())
+                }
+                fresh()
+            }
+
+            //get("/all-server")
+            allServer.setOnClickListener {
+                var str = ""
+                SERVER_SET.forEach {
+                    str += it + "\n"
+                }
+                textView.text = str
+            }
+
+            //get("/merge-server")
+            mergeServer.setOnClickListener {
+                mergeServer.setTextColor(Color.RED)
+                mergeServer.text = "Merging"
+                CoroutineScope(Dispatchers.IO).launch {
+                    val result = collectAndMergeServer(SERVER_SET)
+                    runOnUiThread {
+                        mergeServer.text = "Merge Completed"
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fresh() {
+        with(binding) {
+            arrayOf(validate, clearBlockchain, mergeData, allData, addData, cleanServer, addServer, allServer, mergeServer).forEach {
+                it.setTextColor(Color.WHITE)
+            }
+            editText.visibility = View.GONE
+        }
+    }
+
+    private fun server() {
         CoroutineScope(Dispatchers.IO).launch {
             embeddedServer(Netty, 8080) {
                 install(ContentNegotiation) {
-                    gson {  }
+                    gson { }
                 }
                 routing {
                     get("/") {
-                        binding.tv.text = "Requesting"
                         call.respond(mapOf("message" to "Hello world"))
                     }
 
@@ -69,8 +188,6 @@ class MainActivity : AppCompatActivity() {
                     }
 
 
-
-
                     // BlockController
 
                     get("/all-data") {
@@ -80,8 +197,6 @@ class MainActivity : AppCompatActivity() {
                         val data = call.request.queryParameters["data"]
                         call.respond(addDataToBlockchain(BLOCKCHAIN, data!!))
                     }
-
-
 
 
                     // ServerController
