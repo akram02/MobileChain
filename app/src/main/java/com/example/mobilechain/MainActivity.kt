@@ -20,17 +20,12 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     init {
         BLOCKCHAIN = newBlockchainWithGenesisBlock()
-        cleanServerSet()
+        cleanServerSet(SERVER_SET, PORT)
     }
     companion object {
         lateinit var BLOCKCHAIN: Blockchain
         var SERVER_SET: HashSet<String> = HashSet()
-
-        fun cleanServerSet() {
-            SERVER_SET.clear()
-            SERVER_SET.add("192.168.1.163:8080")
-        }
-
+        val PORT = "8080"
         fun cleanData() {
             BLOCKCHAIN = newBlockchainWithGenesisBlock()
         }
@@ -92,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                     // ServerController
 
                     get("/clean-server") {
-                        cleanServerSet()
+                        cleanServerSet(SERVER_SET, PORT)
                         call.respond(true)
                     }
                     get("/add-server") {
@@ -109,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                         call.respond(SERVER_SET)
                     }
                     get("/merge-server") {
-                        call.respond(collectAndMergeServer(HashSet(SERVER_SET), SERVER_SET))
+                        call.respond(collectAndMergeServer(SERVER_SET))
                     }
                 }
             }.start(true)
