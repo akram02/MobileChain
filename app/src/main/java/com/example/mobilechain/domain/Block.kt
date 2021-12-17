@@ -3,7 +3,7 @@ package com.example.mobilechain.domain
 import java.time.Instant
 
 class Block {
-    lateinit var  timestamp: Instant
+    lateinit var  timestamp: String
     lateinit var  lastHash: String
     lateinit var  hash: String
     lateinit var  data: Any
@@ -13,7 +13,7 @@ class Block {
     constructor()
 
     constructor(timestamp: Instant, lastHash: String, hash: String, data: Any, uuid: String, previousUuid: String) {
-        this.timestamp = timestamp
+        this.timestamp = timestamp.toEpochMilli().toString()
         this.lastHash = lastHash
         this.hash = hash
         this.data = data

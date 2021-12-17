@@ -6,7 +6,7 @@ import java.time.Instant
 import java.util.*
 
 
-fun blockHash(block: Block) = "${block.timestamp.toEpochMilli()}:${block.lastHash}:${block.uuid}:${block.data}".toSha256()
+fun blockHash(block: Block) = "${block.timestamp}:${block.lastHash}:${block.uuid}:${block.data}".toSha256()
 
 fun validBlockHash(block: Block): Boolean {
     return block.hash == blockHash(block)
@@ -27,7 +27,7 @@ fun genesisBlock(): Block {
 
 fun newBlock(timestamp: Instant, lastHash: String, data: Any, uuid: String, previousUuid: String): Block {
     val block = Block()
-    block.timestamp = timestamp
+    block.timestamp = timestamp.toEpochMilli().toString()
     block.lastHash = lastHash
     block.data = data
     block.uuid = uuid
