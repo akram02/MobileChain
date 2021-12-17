@@ -1,7 +1,7 @@
-package com.example.mobilechain.service
+package be.xbd.chain.service
 
-import com.example.mobilechain.domain.Block
-import com.example.mobilechain.utils.toSha256
+import be.xbd.chain.domain.Block
+import be.xbd.chain.utils.toSha256
 import java.time.Instant
 import java.util.*
 

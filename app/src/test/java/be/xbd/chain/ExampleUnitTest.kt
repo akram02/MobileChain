@@ -1,4 +1,4 @@
-package com.example.mobilechain
+package be.xbd.chain
 
 import org.junit.Test
 

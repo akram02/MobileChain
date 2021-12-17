@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.mobilechain"
+        applicationId "be.xbd.chain"
         minSdk 29
         targetSdk 31
         versionCode 1

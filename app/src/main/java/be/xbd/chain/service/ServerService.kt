@@ -1,4 +1,4 @@
-package com.example.mobilechain.service
+package be.xbd.chain.service
 
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.SimpleClientHttpRequestFactory

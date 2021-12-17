@@ -1,10 +1,10 @@
-package com.example.mobilechain
+package be.xbd.chain
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.mobilechain.databinding.ActivityMainBinding
-import com.example.mobilechain.domain.Blockchain
-import com.example.mobilechain.service.*
+import be.xbd.chain.databinding.ActivityMainBinding
+import be.xbd.chain.domain.Blockchain
+import be.xbd.chain.service.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*

@@ -1,4 +1,4 @@
-package com.example.mobilechain.domain
+package be.xbd.chain.domain
 
 import java.time.Instant
 

@@ -1,7 +1,7 @@
-package com.example.mobilechain.service
+package be.xbd.chain.service
 
-import com.example.mobilechain.domain.Block
-import com.example.mobilechain.domain.Blockchain
+import be.xbd.chain.domain.Block
+import be.xbd.chain.domain.Blockchain
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 import java.lang.Exception
