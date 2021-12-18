@@ -17,18 +17,20 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
 import kotlin.collections.HashSet
 
 class MainActivity : AppCompatActivity() {
     init {
         BLOCKCHAIN = newBlockchainWithGenesisBlock()
         cleanServerSet(SERVER_SET, PORT)
+        MY_SERVER_SET = HashSet(SERVER_SET)
     }
     companion object {
         lateinit var BLOCKCHAIN: Blockchain
         var SERVER_SET: HashSet<String> = HashSet()
+        var MY_SERVER_SET: HashSet<String> = HashSet()
         val PORT = "8080"
         fun cleanData() {
             BLOCKCHAIN = newBlockchainWithGenesisBlock()
@@ -40,8 +42,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        fresh()
         server()
         clickHandler()
+        continuousDataSync()
+    }
+
+    private fun continuousDataSync() {
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                MY_SERVER_SET = myServerSet(PORT)
+                SERVER_SET.addAll(MY_SERVER_SET)
+                collectAndMergeServer(SERVER_SET)
+                mergeBlockchain(SERVER_SET, BLOCKCHAIN)
+                delay(200)
+            }
+        }
     }
 
     private fun clickHandler() {
@@ -52,6 +68,7 @@ class MainActivity : AppCompatActivity() {
             //get("/validate")
             validate.setOnClickListener {
                 val result = validChain(BLOCKCHAIN)
+                fresh()
                 if (result) textView.text = "Data is valid"
                 else textView.text = "Error!! Invalid data"
             }
@@ -59,6 +76,8 @@ class MainActivity : AppCompatActivity() {
             //get("/clean-blockchain")
             clearBlockchain.setOnClickListener {
                 cleanData()
+                fresh()
+                textView.text = "Blockchain cleaned"
             }
 
             //get("/merge-blockchain")
@@ -68,7 +87,11 @@ class MainActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     val result = mergeBlockchain(SERVER_SET, BLOCKCHAIN)
                     runOnUiThread {
-                        mergeData.text = "Merge Completed"
+                        fresh()
+                        if (result)
+                            textView.text = "Merge completed"
+                        else
+                            textView.text = "Error!! something went wrong"
                     }
                 }
             }
@@ -82,23 +105,25 @@ class MainActivity : AppCompatActivity() {
                 var str = ""
                 result.forEach {
                     str += it.data
-                    str += " " + Date(it.timestamp.toLong())
+                    str += "\n"
                 }
+                fresh()
                 textView.text = str
             }
 
             //get("/add-data")
             addData.setOnClickListener {
-                fresh()
-                if (addData.text=="ADD") {
+                if (addData.text=="Add Data") {
+                    fresh()
                     addData.text = "Submit"
                     addData.setTextColor(Color.RED)
                     editText.visibility = View.VISIBLE
                 }
                 else {
                     addDataToBlockchain(BLOCKCHAIN, editText.text.toString())
+                    fresh()
+                    textView.text = "Data added to blockchain"
                 }
-                fresh()
             }
 
             // ServerController
@@ -106,21 +131,26 @@ class MainActivity : AppCompatActivity() {
             //get("/clean-server")
             cleanServer.setOnClickListener {
                 cleanServerSet(SERVER_SET, PORT)
-                textView.text = ""
+                textView.text = "Server cleaned"
             }
 
             //get("/add-server")
             addServer.setOnClickListener {
-                fresh()
-                if (addServer.text=="ADD SERVER") {
+                if (addServer.text=="Add Server") {
+                    fresh()
                     addServer.text = "Submit"
                     addServer.setTextColor(Color.RED)
                     editText.visibility = View.VISIBLE
                 }
                 else {
-                    SERVER_SET.add(editText.text.toString())
+                    val text = editText.text.toString()
+                    if (text.isNotEmpty()) {
+                        addServer.setTextColor(Color.WHITE)
+                        SERVER_SET.add(editText.text.toString())
+                        fresh()
+                        textView.text = "Server added"
+                    }
                 }
-                fresh()
             }
 
             //get("/all-server")
@@ -137,11 +167,23 @@ class MainActivity : AppCompatActivity() {
                 mergeServer.setTextColor(Color.RED)
                 mergeServer.text = "Merging"
                 CoroutineScope(Dispatchers.IO).launch {
-                    val result = collectAndMergeServer(SERVER_SET)
+                    collectAndMergeServer(SERVER_SET)
                     runOnUiThread {
-                        mergeServer.text = "Merge Completed"
+                        textView.text = "Merge Completed"
+                        fresh()
                     }
                 }
+            }
+
+            myServer.setOnClickListener {
+                MY_SERVER_SET.clear()
+                MY_SERVER_SET.addAll(myServerSet(PORT))
+                SERVER_SET.addAll(MY_SERVER_SET)
+                var str = ""
+                MY_SERVER_SET.forEach {
+                    str += it + "\n"
+                }
+                textView.text = str
             }
         }
     }
@@ -151,6 +193,13 @@ class MainActivity : AppCompatActivity() {
             arrayOf(validate, clearBlockchain, mergeData, allData, addData, cleanServer, addServer, allServer, mergeServer).forEach {
                 it.setTextColor(Color.WHITE)
             }
+            addServer.text = "Add Server"
+            addData.text = "Add Data"
+            mergeServer.text = "Merge Server"
+            mergeData.text = "Merge Data"
+//            mergeData.visibility = View.GONE
+//            mergeServer.visibility = View.GONE
+            editText.setText("")
             editText.visibility = View.GONE
         }
     }

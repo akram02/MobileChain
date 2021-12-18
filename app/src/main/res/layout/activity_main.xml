@@ -100,6 +100,14 @@
         android:text="Merge Server"
         app:layout_constraintTop_toBottomOf="@id/allServer"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/myServer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/myServer"
+        android:text="My Server"
+        app:layout_constraintTop_toBottomOf="@id/allServer"
+        app:layout_constraintStart_toEndOf="@id/mergeServer"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

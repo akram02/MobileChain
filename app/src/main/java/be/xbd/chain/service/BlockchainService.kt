@@ -52,14 +52,12 @@ fun mergeBlockchain(localServerSet: HashSet<String>, localBlockchain: Blockchain
     factory.setConnectTimeout(100)
     factory.setReadTimeout(25000)
     val restTemplate = RestTemplate(factory)
-    val errorSet = HashSet<String>()
     for (server in localServerSet) {
         var remoteBlockchain: Blockchain?
         try {
             remoteBlockchain = restTemplate.getForObject("http://$server/blockchain", Blockchain::class.java)
         } catch (e: Exception) {
             println("Connection timeout for $server")
-            errorSet.add(server)
             continue
         }
         if (remoteBlockchain == null) continue
@@ -68,19 +66,13 @@ fun mergeBlockchain(localServerSet: HashSet<String>, localBlockchain: Blockchain
         addOneBlockchainToAnother(from = remoteBlockchain, to = localBlockchain)
     }
 
-    localServerSet.removeAll(errorSet)
-    errorSet.clear()
-
     localServerSet.forEach { server ->
         try {
             restTemplate.postForObject("http://$server/add-blockchain", localBlockchain, Boolean::class.java)
         } catch (e: Exception) {
             println("Connection timeout for $server")
-            errorSet.add(server)
         }
     }
-
-    localServerSet.removeAll(errorSet)
 
     return true
 }

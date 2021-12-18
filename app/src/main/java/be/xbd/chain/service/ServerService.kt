@@ -5,10 +5,9 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 import java.net.NetworkInterface
 
-
-fun cleanServerSet(serverSet: HashSet<String>, port: String) {
+fun myServerSet(port: String): HashSet<String> {
+    val serverSet = HashSet<String>()
     val interfaceEnumeration = NetworkInterface.getNetworkInterfaces()
-    serverSet.clear()
     while (interfaceEnumeration.hasMoreElements()) {
         val networkInterface = interfaceEnumeration.nextElement()
         val inetEnumeration = networkInterface.inetAddresses
@@ -19,6 +18,12 @@ fun cleanServerSet(serverSet: HashSet<String>, port: String) {
                 serverSet.add("$host:$port")
         }
     }
+    return serverSet
+}
+
+fun cleanServerSet(serverSet: HashSet<String>, port: String) {
+    serverSet.clear()
+    serverSet.addAll(myServerSet(port))
     println(serverSet)
 }
 
@@ -31,7 +36,6 @@ fun collectAndMergeServer(localServerSet: HashSet<String>): HashSet<String> {
 
     // prevent ConcurrentModificationException
     val localCopy = HashSet(localServerSet)
-    val errorSet = HashSet<String>()
     for (server in localCopy) {
         try {
             val remoteServer: ResponseEntity<Collection<*>> = restTemplate.postForEntity("http://$server/add-all-server", localServerSet, Collection::class.java)
@@ -39,13 +43,9 @@ fun collectAndMergeServer(localServerSet: HashSet<String>): HashSet<String> {
                 localServerSet.addAll(remoteServer.body as Collection<String>)
             }
         } catch (e: Exception) {
-            errorSet.add(server)
             println("Connection timeout for $server")
         }
-        localServerSet.removeAll(errorSet)
     }
-    localServerSet.removeAll(errorSet)
-    localCopy.removeAll(errorSet)
     if (localCopy != localServerSet) {
         localServerSet.addAll(localCopy) // if someone cleared by clean endpoint
         collectAndMergeServer(localServerSet)
