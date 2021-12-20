@@ -1,7 +1,7 @@
 package be.xbd.chain.server
 
-import be.xbd.chain.domain.Blockchain
-import be.xbd.chain.service.*
+import be.xbd.chain.common.domain.Blockchain
+import be.xbd.chain.common.service.service.*
 import be.xbd.chain.server.KtorBackgroundService.Companion.BLOCKCHAIN
 import be.xbd.chain.server.KtorBackgroundService.Companion.PORT
 import be.xbd.chain.server.KtorBackgroundService.Companion.SERVER_SET

@@ -1,4 +1,4 @@
-package be.xbd.chain.domain
+package be.xbd.chain.common.domain
 
 class Blockchain{
     var block: Block? = null

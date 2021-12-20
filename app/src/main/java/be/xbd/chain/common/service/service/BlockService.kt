@@ -1,7 +1,7 @@
-package be.xbd.chain.service
+package be.xbd.chain.common.service.service
 
-import be.xbd.chain.domain.Block
-import be.xbd.chain.utils.toSha256
+import be.xbd.chain.common.domain.Block
+import be.xbd.chain.common.utils.toSha256
 import java.time.Instant
 import java.util.*
 

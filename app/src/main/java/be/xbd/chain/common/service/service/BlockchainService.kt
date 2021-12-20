@@ -1,7 +1,7 @@
-package be.xbd.chain.service
+package be.xbd.chain.common.service.service
 
-import be.xbd.chain.domain.Block
-import be.xbd.chain.domain.Blockchain
+import be.xbd.chain.common.domain.Block
+import be.xbd.chain.common.domain.Blockchain
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 import java.lang.Exception

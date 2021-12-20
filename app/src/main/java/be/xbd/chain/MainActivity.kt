@@ -7,7 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import be.xbd.chain.databinding.ActivityMainBinding
 import be.xbd.chain.server.KtorBackgroundService
-import be.xbd.chain.service.*
+import be.xbd.chain.common.service.service.*
 import be.xbd.chain.server.KtorBackgroundService.Companion.BLOCKCHAIN
 import be.xbd.chain.server.KtorBackgroundService.Companion.MY_SERVER_SET
 import be.xbd.chain.server.KtorBackgroundService.Companion.PORT

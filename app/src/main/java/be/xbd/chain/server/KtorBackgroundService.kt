@@ -8,8 +8,8 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.widget.Toast
 import be.xbd.chain.*
-import be.xbd.chain.domain.Blockchain
-import be.xbd.chain.service.*
+import be.xbd.chain.common.domain.Blockchain
+import be.xbd.chain.common.service.service.*
 import be.xbd.chain.utils.log
 import kotlinx.coroutines.*
 
