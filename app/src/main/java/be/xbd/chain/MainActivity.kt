@@ -1,39 +1,29 @@
 package be.xbd.chain
 
+import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import be.xbd.chain.databinding.ActivityMainBinding
-import be.xbd.chain.domain.Blockchain
+import be.xbd.chain.server.KtorBackgroundService
 import be.xbd.chain.service.*
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.gson.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import be.xbd.chain.server.KtorBackgroundService.Companion.BLOCKCHAIN
+import be.xbd.chain.server.KtorBackgroundService.Companion.MY_SERVER_SET
+import be.xbd.chain.server.KtorBackgroundService.Companion.PORT
+import be.xbd.chain.server.KtorBackgroundService.Companion.SERVER_SET
+import be.xbd.chain.server.KtorBackgroundService.Companion.cleanData
+import be.xbd.chain.utils.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.collections.HashSet
 
 class MainActivity : AppCompatActivity() {
     init {
-        BLOCKCHAIN = newBlockchainWithGenesisBlock()
-        cleanServerSet(SERVER_SET, PORT)
-        MY_SERVER_SET = HashSet(SERVER_SET)
-    }
-    companion object {
-        lateinit var BLOCKCHAIN: Blockchain
-        var SERVER_SET: HashSet<String> = HashSet()
-        var MY_SERVER_SET: HashSet<String> = HashSet()
-        val PORT = "8080"
-        fun cleanData() {
+        if (BLOCKCHAIN == null) {
             BLOCKCHAIN = newBlockchainWithGenesisBlock()
+            cleanServerSet(SERVER_SET, PORT)
+            MY_SERVER_SET = HashSet(SERVER_SET)
         }
     }
 
@@ -43,31 +33,37 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         fresh()
-        server()
         clickHandler()
-        continuousDataSync()
     }
 
-    private fun continuousDataSync() {
-        CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
-                MY_SERVER_SET = myServerSet(PORT)
-                SERVER_SET.addAll(MY_SERVER_SET)
-                collectAndMergeServer(SERVER_SET)
-                mergeBlockchain(SERVER_SET, BLOCKCHAIN)
-                delay(200)
-            }
+    private fun actionOnService(action: Actions) {
+        if (getServiceState(this) == ServiceState.STOPPED && action == Actions.STOP) return
+        Intent(this, KtorBackgroundService::class.java).also {
+            it.action = action.name
+            log("Starting the service")
+            startForegroundService(it)
         }
     }
-
     private fun clickHandler() {
         with(binding) {
+
+            start.setOnClickListener {
+                start.isEnabled = false
+                stop.isEnabled = true
+                actionOnService(Actions.START)
+            }
+
+            stop.setOnClickListener {
+                stop.isEnabled = false
+                start.isEnabled = true
+                actionOnService(Actions.STOP)
+            }
 
             // BlockchainController
 
             //get("/validate")
             validate.setOnClickListener {
-                val result = validChain(BLOCKCHAIN)
+                val result = validChain(BLOCKCHAIN!!)
                 fresh()
                 if (result) textView.text = "Data is valid"
                 else textView.text = "Error!! Invalid data"
@@ -85,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                 mergeData.setTextColor(Color.RED)
                 mergeData.text = "Merging"
                 CoroutineScope(Dispatchers.IO).launch {
-                    val result = mergeBlockchain(SERVER_SET, BLOCKCHAIN)
+                    val result = mergeBlockchain(SERVER_SET, BLOCKCHAIN!!)
                     runOnUiThread {
                         fresh()
                         if (result)
@@ -101,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
             //get("/all-data")
             allData.setOnClickListener {
-                val result = getBlockSetFromBlockchain(BLOCKCHAIN)
+                val result = getBlockSetFromBlockchain(BLOCKCHAIN!!)
                 var str = ""
                 result.forEach {
                     str += it.data
@@ -120,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                     editText.visibility = View.VISIBLE
                 }
                 else {
-                    addDataToBlockchain(BLOCKCHAIN, editText.text.toString())
+                    addDataToBlockchain(BLOCKCHAIN!!, editText.text.toString())
                     fresh()
                     textView.text = "Data added to blockchain"
                 }
@@ -201,77 +197,14 @@ class MainActivity : AppCompatActivity() {
 //            mergeServer.visibility = View.GONE
             editText.setText("")
             editText.visibility = View.GONE
-        }
-    }
-
-    private fun server() {
-        CoroutineScope(Dispatchers.IO).launch {
-            embeddedServer(Netty, 8080) {
-                install(ContentNegotiation) {
-                    gson { }
-                }
-                routing {
-                    get("/") {
-                        call.respond(mapOf("message" to "Hello world"))
-                    }
-
-
-                    // BlockchainController
-
-                    get("/validate") {
-                        call.respond(validChain(BLOCKCHAIN))
-                    }
-                    get("/clean-blockchain") {
-                        cleanData()
-                        call.respond(true)
-                    }
-                    get("/blockchain") {
-                        call.respond(BLOCKCHAIN)
-                    }
-                    post("/add-blockchain") {
-                        val remoteBlockchain = call.receive<Blockchain>()
-                        call.respond(addRemoteBlockchain(remoteBlockchain, BLOCKCHAIN))
-                    }
-                    get("/merge-blockchain") {
-                        call.respond(mergeBlockchain(SERVER_SET, BLOCKCHAIN))
-                    }
-
-
-                    // BlockController
-
-                    get("/all-data") {
-                        call.respond(getBlockSetFromBlockchain(BLOCKCHAIN))
-                    }
-                    get("/add-data") {
-                        val data = call.request.queryParameters["data"]
-                        call.respond(addDataToBlockchain(BLOCKCHAIN, data!!))
-                    }
-
-
-                    // ServerController
-
-                    get("/clean-server") {
-                        cleanServerSet(SERVER_SET, PORT)
-                        call.respond(true)
-                    }
-                    get("/add-server") {
-                        val server = call.request.queryParameters["server"]
-                        SERVER_SET.add(server!!)
-                        call.respond(SERVER_SET)
-                    }
-                    get("/all-server") {
-                        call.respond(SERVER_SET)
-                    }
-                    post("/add-all-server") {
-                        val remoteServerSet = call.receive<Set<String>>()
-                        SERVER_SET.addAll(remoteServerSet)
-                        call.respond(SERVER_SET)
-                    }
-                    get("/merge-server") {
-                        call.respond(collectAndMergeServer(SERVER_SET))
-                    }
-                }
-            }.start(true)
+            if (getServiceState(this@MainActivity) == ServiceState.STARTED) {
+                start.isEnabled = false
+                stop.isEnabled = true
+            }
+            else {
+                start.isEnabled = true
+                stop.isEnabled = false
+            }
         }
     }
 }

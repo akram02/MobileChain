@@ -111,11 +111,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/start"
+        android:text="Start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mergeServer"
+        app:layout_constraintEnd_toStartOf="@id/stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/stop"
+        android:text="Stop"
+        app:layout_constraintStart_toEndOf="@id/start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/myServer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     <EditText
         android:id="@+id/editText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mergeServer"
+        app:layout_constraintTop_toBottomOf="@id/start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <ScrollView
