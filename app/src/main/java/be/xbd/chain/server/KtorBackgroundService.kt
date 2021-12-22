@@ -97,7 +97,11 @@ class KtorBackgroundService: Service() {
 
         GlobalScope.launch {
             while (isServiceStarted) {
-                KtorServer.start()
+                try {
+                    KtorServer.start()
+                } catch (e: java.lang.Exception) {
+                    println("Address already in use")
+                }
                 delay(1*60*1000)
             }
         }
@@ -105,7 +109,7 @@ class KtorBackgroundService: Service() {
     }
 
     private fun stopService() {
-        Toast.makeText(this, "Mobile Chain is starting", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Mobile Chain is stopping", Toast.LENGTH_SHORT).show()
         GlobalScope.launch {
             KtorServer.stop()
         }
