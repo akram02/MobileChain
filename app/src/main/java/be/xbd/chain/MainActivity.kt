@@ -48,14 +48,10 @@ class MainActivity : AppCompatActivity() {
         with(binding) {
 
             start.setOnClickListener {
-                start.isEnabled = false
-                stop.isEnabled = true
                 actionOnService(Actions.START)
             }
 
             stop.setOnClickListener {
-                stop.isEnabled = false
-                start.isEnabled = true
                 actionOnService(Actions.STOP)
             }
 
@@ -197,14 +193,6 @@ class MainActivity : AppCompatActivity() {
 //            mergeServer.visibility = View.GONE
             editText.setText("")
             editText.visibility = View.GONE
-            if (getServiceState(this@MainActivity) == ServiceState.STARTED) {
-                start.isEnabled = false
-                stop.isEnabled = true
-            }
-            else {
-                start.isEnabled = true
-                stop.isEnabled = false
-            }
         }
     }
 }

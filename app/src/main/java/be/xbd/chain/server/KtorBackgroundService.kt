@@ -144,7 +144,7 @@ class KtorBackgroundService: Service() {
         notificationManager.createNotificationChannel(channel)
 
         val pendingIntent = Intent(this, MainActivity::class.java).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
+            PendingIntent.getActivity(this, 0, notificationIntent, 0 or PendingIntent.FLAG_IMMUTABLE)
         }
 
         val builder: Notification.Builder = Notification.Builder(this, notificationChannelId)
